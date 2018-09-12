@@ -15,7 +15,8 @@ class LibCxsparseConan(ConanFile):
         "patches/Demo/CMakeLists.txt",
         "patches/CMakeLists.txt",
         "patches/cs_convert.c.diff",
-        "patches/SuiteSparse_config.h.diff"
+        "patches/SuiteSparse_config.h.diff",
+        "patches/FindCXSparse.cmake"
     ]
     url = "https://gitlab.lan.local/conan/conan-glog"
     license="GNU Lesser General Public License"
@@ -43,6 +44,10 @@ class LibCxsparseConan(ConanFile):
         cmake.build()
         cmake.install()
         cmake.patch_config_paths()
+
+
+    def package(self):
+        self.copy("FindCXSparse.cmake", src="patches", dst=".", keep_path=False)
 
     def package_info(self):
         self.cpp_info.libs = tools.collect_libs(self)

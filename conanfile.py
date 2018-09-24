@@ -25,6 +25,9 @@ class LibCxsparseConan(ConanFile):
     build_subfolder = "build_subfolder"
     short_paths = False
 
+    def configure(self):
+        del self.settings.compiler.libcxx
+
     def source(self):
         tools.get("https://github.com/PetterS/CXSparse/archive/{0}.tar.gz".format(self.version))
         os.rename("CXSparse-" + self.version, self.source_subfolder)

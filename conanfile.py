@@ -43,6 +43,8 @@ class LibCxsparseConan(ConanFile):
         tools.patch(cxsparse_source_dir, "patches/SuiteSparse_config.h.diff")
 
         cmake = CMake(self)
+        if not tools.os_info.is_windows:
+            cmake.definitions["CMAKE_POSITION_INDEPENDENT_CODE"] = "ON"
         cmake.configure(build_folder=self.build_subfolder)
         cmake.build()
         cmake.install()

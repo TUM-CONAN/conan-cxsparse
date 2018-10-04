@@ -27,6 +27,8 @@ class LibCxsparseConan(ConanFile):
 
     def configure(self):
         del self.settings.compiler.libcxx
+        if not tools.os_info.is_windows:
+            self.options.shared = False
 
     def source(self):
         tools.get("https://github.com/PetterS/CXSparse/archive/{0}.tar.gz".format(self.version))

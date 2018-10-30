@@ -50,8 +50,6 @@ class LibCxsparseConan(ConanFile):
         cmake.configure(build_folder=self.build_subfolder)
         cmake.build()
         cmake.install()
-        cmake.patch_config_paths()
-
 
     def package(self):
         self.copy("FindCXSparse.cmake", src="patches", dst=".", keep_path=False)

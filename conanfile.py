@@ -18,7 +18,7 @@ class LibCxsparseConan(ConanFile):
         "patches/SuiteSparse_config.h.diff",
         "patches/FindCXSparse.cmake"
     ]
-    url = "https://gitlab.lan.local/conan/conan-glog"
+    url = "https://git.ircad.fr/conan/conan-glog"
     license="GNU Lesser General Public License"
     description =  "A concise sparse Cholesky library."
     source_subfolder = "source_subfolder"

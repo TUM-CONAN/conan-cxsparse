@@ -5,7 +5,9 @@ import shutil
 
 class LibCxsparseConan(ConanFile):
     name = "cxsparse"
-    version = "3.1.1"
+    package_revision = "-r1"
+    upstream_version = "3.1.1"
+    version = "{0}{1}".format(upstream_version, package_revision)
     generators = "cmake"
     settings = "os", "arch", "compiler", "build_type"
     options = {"shared": [True, False]}
@@ -31,8 +33,8 @@ class LibCxsparseConan(ConanFile):
             self.options.shared = False
 
     def source(self):
-        tools.get("https://github.com/PetterS/CXSparse/archive/{0}.tar.gz".format(self.version))
-        os.rename("CXSparse-" + self.version, self.source_subfolder)
+        tools.get("https://github.com/PetterS/CXSparse/archive/{0}.tar.gz".format(self.upstream_version))
+        os.rename("CXSparse-" + self.upstream_version, self.source_subfolder)
 
     def build(self):
         cxsparse_source_dir = os.path.join(self.source_folder, self.source_subfolder)

@@ -5,7 +5,7 @@ import shutil
 
 class LibCxsparseConan(ConanFile):
     name = "cxsparse"
-    package_revision = "-r1"
+    package_revision = "-r2"
     upstream_version = "3.1.1"
     version = "{0}{1}".format(upstream_version, package_revision)
     generators = "cmake"
@@ -32,11 +32,16 @@ class LibCxsparseConan(ConanFile):
         if not tools.os_info.is_windows:
             self.options.shared = False
 
+    def requirements(self):
+        self.requires("common/1.0.0@sight/stable")
+
     def source(self):
         tools.get("https://github.com/PetterS/CXSparse/archive/{0}.tar.gz".format(self.upstream_version))
         os.rename("CXSparse-" + self.upstream_version, self.source_subfolder)
 
     def build(self):
+        #Import common flags and defines
+        import common
         cxsparse_source_dir = os.path.join(self.source_folder, self.source_subfolder)
         shutil.move("patches/CMakeProjectWrapper.txt", "CMakeLists.txt")
         shutil.copy("patches/Demo/CMakeLists.txt",
@@ -47,6 +52,11 @@ class LibCxsparseConan(ConanFile):
         tools.patch(cxsparse_source_dir, "patches/SuiteSparse_config.h.diff")
 
         cmake = CMake(self)
+        
+        #Set common flags
+        cmake.definitions["CMAKE_C_FLAGS"] = common.get_c_flags()
+        cmake.definitions["CMAKE_CXX_FLAGS"] = common.get_cxx_flags()
+        
         if not tools.os_info.is_windows:
             cmake.definitions["CMAKE_POSITION_INDEPENDENT_CODE"] = "ON"
         cmake.configure(build_folder=self.build_subfolder)

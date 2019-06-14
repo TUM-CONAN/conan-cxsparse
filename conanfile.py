@@ -40,8 +40,9 @@ class LibCxsparseConan(ConanFile):
         os.rename("CXSparse-" + self.upstream_version, self.source_subfolder)
 
     def build(self):
-        #Import common flags and defines
+        # Import common flags and defines
         import common
+
         cxsparse_source_dir = os.path.join(self.source_folder, self.source_subfolder)
         shutil.move("patches/CMakeProjectWrapper.txt", "CMakeLists.txt")
         shutil.copy("patches/Demo/CMakeLists.txt",
@@ -53,9 +54,9 @@ class LibCxsparseConan(ConanFile):
 
         cmake = CMake(self)
         
-        #Set common flags
-        cmake.definitions["CMAKE_C_FLAGS"] = common.get_c_flags()
-        cmake.definitions["CMAKE_CXX_FLAGS"] = common.get_cxx_flags()
+        # Set common flags
+        cmake.definitions["SIGHT_CMAKE_C_FLAGS"] = common.get_c_flags()
+        cmake.definitions["SIGHT_CMAKE_CXX_FLAGS"] = common.get_cxx_flags()
         
         if not tools.os_info.is_windows:
             cmake.definitions["CMAKE_POSITION_INDEPENDENT_CODE"] = "ON"

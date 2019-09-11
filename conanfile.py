@@ -5,7 +5,7 @@ import shutil
 
 class LibCxsparseConan(ConanFile):
     name = "cxsparse"
-    package_revision = "-r2"
+    package_revision = "-r3"
     upstream_version = "3.1.1"
     version = "{0}{1}".format(upstream_version, package_revision)
     generators = "cmake"
@@ -33,7 +33,7 @@ class LibCxsparseConan(ConanFile):
             self.options.shared = False
 
     def requirements(self):
-        self.requires("common/1.0.0@sight/stable")
+        self.requires("common/1.0.1@sight/testing")
 
     def source(self):
         tools.get("https://github.com/PetterS/CXSparse/archive/{0}.tar.gz".format(self.upstream_version))

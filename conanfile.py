@@ -3,6 +3,7 @@ from conans.util import files
 import os
 import shutil
 
+
 class LibCxsparseConan(ConanFile):
     name = "cxsparse"
     package_revision = "-r3"
@@ -21,14 +22,13 @@ class LibCxsparseConan(ConanFile):
         "patches/FindCXSparse.cmake"
     ]
     url = "https://git.ircad.fr/conan/conan-glog"
-    license="GNU Lesser General Public License"
-    description =  "A concise sparse Cholesky library."
+    license = "GNU Lesser General Public License"
+    description = "A concise sparse Cholesky library."
     source_subfolder = "source_subfolder"
     build_subfolder = "build_subfolder"
     short_paths = False
 
     def configure(self):
-        del self.settings.compiler.libcxx
         if not tools.os_info.is_windows:
             self.options.shared = False
 
@@ -53,11 +53,13 @@ class LibCxsparseConan(ConanFile):
         tools.patch(cxsparse_source_dir, "patches/SuiteSparse_config.h.diff")
 
         cmake = CMake(self)
-        
-        # Set common flags
-        cmake.definitions["SIGHT_CMAKE_C_FLAGS"] = common.get_c_flags()
+
+        # Export common flags
         cmake.definitions["SIGHT_CMAKE_CXX_FLAGS"] = common.get_cxx_flags()
-        
+        cmake.definitions["SIGHT_CMAKE_CXX_FLAGS_RELEASE"] = common.get_cxx_flags_release()
+        cmake.definitions["SIGHT_CMAKE_CXX_FLAGS_DEBUG"] = common.get_cxx_flags_debug()
+        cmake.definitions["SIGHT_CMAKE_CXX_FLAGS_RELWITHDEBINFO"] = common.get_cxx_flags_relwithdebinfo()
+
         if not tools.os_info.is_windows:
             cmake.definitions["CMAKE_POSITION_INDEPENDENT_CODE"] = "ON"
         cmake.configure(build_folder=self.build_subfolder)

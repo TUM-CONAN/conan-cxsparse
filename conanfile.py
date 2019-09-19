@@ -13,7 +13,6 @@ class LibCxsparseConan(ConanFile):
     options = {"shared": [True, False]}
     default_options = "shared=True"
     exports = [
-        "patches/CMakeProjectWrapper.txt",
         "patches/Demo/CMakeLists.txt",
         "patches/CMakeLists.txt",
         "patches/cs_convert.c.diff",
@@ -24,8 +23,7 @@ class LibCxsparseConan(ConanFile):
     license = "GNU Lesser General Public License"
     description = "A concise sparse Cholesky library."
     source_subfolder = "source_subfolder"
-    build_subfolder = "build_subfolder"
-    short_paths = False
+    short_paths = True
 
     def configure(self):
         if not tools.os_info.is_windows:
@@ -39,11 +37,7 @@ class LibCxsparseConan(ConanFile):
         os.rename("CXSparse-" + self.upstream_version, self.source_subfolder)
 
     def build(self):
-        # Import common flags and defines
-        import common
-
         cxsparse_source_dir = os.path.join(self.source_folder, self.source_subfolder)
-        shutil.move("patches/CMakeProjectWrapper.txt", "CMakeLists.txt")
         shutil.copy("patches/Demo/CMakeLists.txt",
                     os.path.join(cxsparse_source_dir, "Demo", "CMakeLists.txt"))
         shutil.copy("patches/CMakeLists.txt",
@@ -51,17 +45,23 @@ class LibCxsparseConan(ConanFile):
         tools.patch(cxsparse_source_dir, "patches/cs_convert.c.diff")
         tools.patch(cxsparse_source_dir, "patches/SuiteSparse_config.h.diff")
 
-        cmake = CMake(self)
+        # Import common flags and defines
+        import common
 
-        # Export common flags
-        cmake.definitions["SIGHT_CMAKE_CXX_FLAGS"] = common.get_cxx_flags()
-        cmake.definitions["SIGHT_CMAKE_CXX_FLAGS_RELEASE"] = common.get_cxx_flags_release()
-        cmake.definitions["SIGHT_CMAKE_CXX_FLAGS_DEBUG"] = common.get_cxx_flags_debug()
-        cmake.definitions["SIGHT_CMAKE_CXX_FLAGS_RELWITHDEBINFO"] = common.get_cxx_flags_relwithdebinfo()
+        # Generate Cmake wrapper
+        common.generate_cmake_wrapper(
+            cmakelists_path='CMakeLists.txt',
+            source_subfolder=self.source_subfolder,
+            build_type=self.settings.build_type
+        )
+
+        cmake = CMake(self)
+        cmake.verbose = True
 
         if not tools.os_info.is_windows:
             cmake.definitions["CMAKE_POSITION_INDEPENDENT_CODE"] = "ON"
-        cmake.configure(build_folder=self.build_subfolder)
+
+        cmake.configure()
         cmake.build()
         cmake.install()
 

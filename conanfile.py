@@ -30,7 +30,7 @@ class LibCxsparseConan(ConanFile):
             self.options.shared = False
 
     def requirements(self):
-        self.requires("common/1.0.1@sight/testing")
+        self.requires("common/1.0.1@sight/stable")
 
     def source(self):
         tools.get("https://github.com/PetterS/CXSparse/archive/{0}.tar.gz".format(self.upstream_version))
@@ -56,7 +56,6 @@ class LibCxsparseConan(ConanFile):
         )
 
         cmake = CMake(self)
-        cmake.verbose = True
 
         if not tools.os_info.is_windows:
             cmake.definitions["CMAKE_POSITION_INDEPENDENT_CODE"] = "ON"

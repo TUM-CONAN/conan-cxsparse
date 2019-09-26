@@ -1,11 +1,11 @@
-from conans import ConanFile, CMake, tools, AutoToolsBuildEnvironment
-from conans.util import files
+from conans import ConanFile, CMake, tools
 import os
 import shutil
 
+
 class LibCxsparseConan(ConanFile):
     name = "cxsparse"
-    package_revision = "-r2"
+    package_revision = "-r3"
     upstream_version = "3.1.1"
     version = "{0}{1}".format(upstream_version, package_revision)
     generators = "cmake"
@@ -13,7 +13,6 @@ class LibCxsparseConan(ConanFile):
     options = {"shared": [True, False]}
     default_options = "shared=True"
     exports = [
-        "patches/CMakeProjectWrapper.txt",
         "patches/Demo/CMakeLists.txt",
         "patches/CMakeLists.txt",
         "patches/cs_convert.c.diff",
@@ -21,30 +20,24 @@ class LibCxsparseConan(ConanFile):
         "patches/FindCXSparse.cmake"
     ]
     url = "https://git.ircad.fr/conan/conan-glog"
-    license="GNU Lesser General Public License"
-    description =  "A concise sparse Cholesky library."
+    license = "GNU Lesser General Public License"
+    description = "A concise sparse Cholesky library."
     source_subfolder = "source_subfolder"
-    build_subfolder = "build_subfolder"
-    short_paths = False
+    short_paths = True
 
     def configure(self):
-        del self.settings.compiler.libcxx
         if not tools.os_info.is_windows:
             self.options.shared = False
 
     def requirements(self):
-        self.requires("common/1.0.0@sight/stable")
+        self.requires("common/1.0.1@sight/stable")
 
     def source(self):
         tools.get("https://github.com/PetterS/CXSparse/archive/{0}.tar.gz".format(self.upstream_version))
         os.rename("CXSparse-" + self.upstream_version, self.source_subfolder)
 
     def build(self):
-        # Import common flags and defines
-        import common
-
         cxsparse_source_dir = os.path.join(self.source_folder, self.source_subfolder)
-        shutil.move("patches/CMakeProjectWrapper.txt", "CMakeLists.txt")
         shutil.copy("patches/Demo/CMakeLists.txt",
                     os.path.join(cxsparse_source_dir, "Demo", "CMakeLists.txt"))
         shutil.copy("patches/CMakeLists.txt",
@@ -52,15 +45,22 @@ class LibCxsparseConan(ConanFile):
         tools.patch(cxsparse_source_dir, "patches/cs_convert.c.diff")
         tools.patch(cxsparse_source_dir, "patches/SuiteSparse_config.h.diff")
 
+        # Import common flags and defines
+        import common
+
+        # Generate Cmake wrapper
+        common.generate_cmake_wrapper(
+            cmakelists_path='CMakeLists.txt',
+            source_subfolder=self.source_subfolder,
+            build_type=self.settings.build_type
+        )
+
         cmake = CMake(self)
-        
-        # Set common flags
-        cmake.definitions["SIGHT_CMAKE_C_FLAGS"] = common.get_c_flags()
-        cmake.definitions["SIGHT_CMAKE_CXX_FLAGS"] = common.get_cxx_flags()
-        
+
         if not tools.os_info.is_windows:
             cmake.definitions["CMAKE_POSITION_INDEPENDENT_CODE"] = "ON"
-        cmake.configure(build_folder=self.build_subfolder)
+
+        cmake.configure()
         cmake.build()
         cmake.install()
 

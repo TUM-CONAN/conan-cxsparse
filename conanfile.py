@@ -30,7 +30,7 @@ class LibCxsparseConan(ConanFile):
             self.options.shared = False
 
     def requirements(self):
-        self.requires("common/1.0.2@sight/testing")
+        self.requires("common/1.0.2@sight/stable")
 
     def source(self):
         tools.get("https://github.com/PetterS/CXSparse/archive/{0}.tar.gz".format(self.upstream_version))
